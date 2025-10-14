@@ -1,0 +1,25 @@
+{
+  "name": "cradle-bridge-schools",
+  "version": "1.0.0",
+  "description": "Modern school website for Cradle Bridge Schools, Udu, Delta State, Nigeria",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [
+    "school",
+    "education",
+    "website",
+    "nigeria"
+  ],
+  "author": "Cradle Bridge Schools",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
