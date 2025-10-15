@@ -115,7 +115,6 @@ const Admissions = () => {
     } catch (error) {
       console.error('Application error:', error);
       if (error.response?.data?.errors) {
-        const apiErrors = {};
         error.response.data.errors.forEach(err => {
           toast.error(err);
         });
