@@ -5,13 +5,22 @@ const TEMPLATE_ID_APPLICANT = process.env.REACT_APP_EMAILJS_TEMPLATE_ID_APPLICAN
 const TEMPLATE_ID_ADMIN = process.env.REACT_APP_EMAILJS_TEMPLATE_ID_ADMIN;
 const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
-// Initialize EmailJS
-emailjs.init(PUBLIC_KEY);
+// Initialize EmailJS only if configured
+if (PUBLIC_KEY) {
+  emailjs.init(PUBLIC_KEY);
+} else {
+  console.warn('EmailJS not configured. Email notifications will be disabled.');
+}
 
 /**
  * Send application confirmation email to applicant
  */
 export const sendApplicationConfirmation = async (applicantData) => {
+  if (!PUBLIC_KEY || !SERVICE_ID) {
+    console.warn('EmailJS not configured, skipping email send');
+    return { success: true, skipped: true };
+  }
+  
   try {
     const templateParams = {
       to_email: applicantData.email,
@@ -38,6 +47,11 @@ export const sendApplicationConfirmation = async (applicantData) => {
  * Send application notification to school admin
  */
 export const sendApplicationNotification = async (applicationData) => {
+  if (!PUBLIC_KEY || !SERVICE_ID) {
+    console.warn('EmailJS not configured, skipping email send');
+    return { success: true, skipped: true };
+  }
+  
   try {
     const templateParams = {
       to_email: process.env.REACT_APP_SCHOOL_EMAIL,
@@ -67,6 +81,11 @@ export const sendApplicationNotification = async (applicationData) => {
  * Send contact inquiry confirmation
  */
 export const sendContactConfirmation = async (contactData) => {
+  if (!PUBLIC_KEY || !SERVICE_ID) {
+    console.warn('EmailJS not configured, skipping email send');
+    return { success: true, skipped: true };
+  }
+  
   try {
     const templateParams = {
       to_email: contactData.email,
@@ -92,6 +111,11 @@ export const sendContactConfirmation = async (contactData) => {
  * Send contact inquiry to school admin
  */
 export const sendContactNotification = async (contactData) => {
+  if (!PUBLIC_KEY || !SERVICE_ID) {
+    console.warn('EmailJS not configured, skipping email send');
+    return { success: true, skipped: true };
+  }
+  
   try {
     const templateParams = {
       to_email: process.env.REACT_APP_SCHOOL_EMAIL,
