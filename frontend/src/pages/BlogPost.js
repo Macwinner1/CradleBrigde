@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaClock, FaUser } from 'react-icons/fa';
@@ -9,11 +9,7 @@ const BlogPost = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchPost();
-  }, [slug]);
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     try {
       const response = await blogAPI.getBySlug(slug);
       if (response.data.success) {
@@ -24,7 +20,11 @@ const BlogPost = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    fetchPost();
+  }, [fetchPost]);
 
   if (loading) {
     return (
