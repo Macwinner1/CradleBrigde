@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
@@ -8,9 +7,7 @@ import {
   FaUsers, 
   FaEnvelope, 
   FaBlog, 
-  FaSignOutAlt,
-  FaCheckCircle,
-  FaTimesCircle 
+  FaSignOutAlt
 } from 'react-icons/fa';
 import { applicationsAPI, contactAPI, blogAPI } from '../../services/api';
 
@@ -23,6 +20,13 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if Firebase is configured
+    if (!auth) {
+      toast.error('Admin authentication not configured');
+      navigate('/');
+      return;
+    }
+
     // Check if user is authenticated
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
@@ -55,6 +59,11 @@ const Dashboard = () => {
   };
 
   const handleLogout = async () => {
+    if (!auth) {
+      navigate('/');
+      return;
+    }
+    
     try {
       await signOut(auth);
       toast.success('Logged out successfully');
