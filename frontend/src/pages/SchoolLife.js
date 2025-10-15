@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaFutbol, FaMusic, FaDrama, FaChess, FaPalette, FaMicroscope } from 'react-icons/fa';
+import { FaFutbol, FaMusic, FaTheaterMasks, FaChess, FaPalette, FaMicroscope } from 'react-icons/fa';
 
 const SchoolLife = () => {
   const fadeInUp = {
@@ -24,7 +24,7 @@ const SchoolLife = () => {
       color: 'from-purple-500 to-pink-500'
     },
     {
-      icon: FaDrama,
+      icon: FaTheaterMasks,
       title: 'Drama & Arts',
       description: 'Theater productions, creative writing, and dramatic performances.',
       color: 'from-red-500 to-orange-500'
