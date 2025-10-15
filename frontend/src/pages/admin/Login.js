@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -12,8 +12,22 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if Firebase is configured
+    if (!auth) {
+      toast.error('Admin authentication not configured. Firebase setup required.');
+      setTimeout(() => navigate('/'), 2000);
+    }
+  }, [navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    if (!auth) {
+      toast.error('Authentication service not available');
+      return;
+    }
+    
     setLoading(true);
 
     try {
