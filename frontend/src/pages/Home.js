@@ -317,14 +317,24 @@ const BlogCard = ({ post }) => {
     <Link to={`/blog/${post.slug}`} className="block group">
       <div className="card h-full">
         <div className="w-full h-48 bg-gradient-navy rounded-lg mb-4 overflow-hidden">
-          <img
-            src={post.image || '/images/blog/default.jpg'}
-            alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/400x300/001F3F/FFFFFF?text=Cradle+Bridge';
-            }}
-          />
+          {post.image && post.image !== '/images/blog/default.jpg' ? (
+            <img
+              src={post.image}
+              alt={post.title}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              onError={(e) => {
+                console.warn('Blog card image failed to load:', post.image);
+                e.target.src = 'https://via.placeholder.com/400x300/001F3F/FFFFFF?text=Cradle+Bridge';
+              }}
+              onLoad={() => {
+                console.log('Blog card image loaded:', post.image);
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy-600 to-navy-900">
+              <span className="text-white text-sm font-semibold">Cradle Bridge</span>
+            </div>
+          )}
         </div>
         <div className="flex items-center justify-between mb-2 text-sm">
           <span className="px-3 py-1 bg-navy-100 text-navy-900 rounded-full font-medium">

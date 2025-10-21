@@ -334,13 +334,16 @@ const BlogTab = ({ posts, onRefresh }) => {
   const uploadImage = async () => {
     // If no new image file, keep existing image or use default
     if (!imageFile) {
+      console.log('No new image file, using existing:', editingPost?.image);
       return editingPost?.image || '/images/blog/default.jpg';
     }
 
     // Check if storage is available
     if (!storage) {
-      console.warn('Firebase Storage not configured, using default image');
-      toast.warning('Image upload not available - Firebase Storage not configured');
+      console.error('❌ Firebase Storage not configured!');
+      console.error('Storage object:', storage);
+      console.error('Please ensure Firebase Storage rules are set up correctly.');
+      toast.error('Firebase Storage not available. Please check configuration.');
       return '/images/blog/default.jpg';
     }
 
@@ -350,15 +353,30 @@ const BlogTab = ({ posts, onRefresh }) => {
       const fileName = `blog/${timestamp}_${sanitizedFileName}`;
       const storageRef = ref(storage, fileName);
       
-      console.log('Uploading image:', fileName);
+      console.log('📤 Starting image upload...');
+      console.log('   File name:', imageFile.name);
+      console.log('   File size:', (imageFile.size / 1024).toFixed(2), 'KB');
+      console.log('   Storage path:', fileName);
+      
       await uploadBytes(storageRef, imageFile);
+      console.log('✅ Upload complete, getting download URL...');
+      
       const downloadURL = await getDownloadURL(storageRef);
-      console.log('Image uploaded successfully:', downloadURL);
+      console.log('🎉 Image uploaded successfully!');
+      console.log('   Download URL:', downloadURL);
       
       return downloadURL;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image: ' + error.message);
+      console.error('❌ Error uploading image:', error);
+      console.error('   Error code:', error.code);
+      console.error('   Error message:', error.message);
+      
+      if (error.code === 'storage/unauthorized') {
+        toast.error('Permission denied. Please configure Firebase Storage rules.');
+      } else {
+        toast.error('Failed to upload image: ' + error.message);
+      }
+      
       return editingPost?.image || '/images/blog/default.jpg';
     }
   };
@@ -376,47 +394,61 @@ const BlogTab = ({ posts, onRefresh }) => {
     try {
       let imageUrl = editingPost?.image || '/images/blog/default.jpg';
       
+      console.log('📝 Starting blog post save...');
+      console.log('   Editing:', !!editingPost);
+      console.log('   Has new image:', !!imageFile);
+      console.log('   Current image URL:', imageUrl);
+      
       // Start creating/updating post immediately (don't wait for image)
       const postData = {
         ...formData,
         image: imageUrl // Use existing or default initially
       };
 
-      console.log('Saving post data:', postData);
+      console.log('📦 Post data:', postData);
 
       let savedPost;
       
       if (editingPost) {
-        console.log('Updating post:', editingPost.id);
+        console.log('✏️ Updating post:', editingPost.id);
         const response = await blogAPI.update(editingPost.id, postData);
-        console.log('Update response:', response);
+        console.log('✅ Update response:', response.data);
         savedPost = response.data.data;
       } else {
-        console.log('Creating new post');
+        console.log('➕ Creating new post');
         const response = await blogAPI.create(postData);
-        console.log('Create response:', response);
+        console.log('✅ Create response:', response.data);
         savedPost = response.data.data;
       }
 
       // If there's a new image, upload it and update the post
       if (imageFile) {
-        console.log('Uploading image in background...');
-        toast.info('Post saved! Uploading image...');
+        console.log('🖼️ Uploading image in background...');
+        toast.info('Post saved! Uploading image...', { autoClose: 2000 });
         
         try {
           imageUrl = await uploadImage();
           
           // Update the post with the new image URL
-          if (imageUrl !== '/images/blog/default.jpg') {
-            console.log('Updating post with image:', imageUrl);
-            await blogAPI.update(savedPost.id, { ...postData, image: imageUrl });
-            toast.success(editingPost ? 'Post updated with image!' : 'Post created with image!');
+          if (imageUrl && imageUrl !== '/images/blog/default.jpg') {
+            console.log('🔄 Updating post with new image URL:', imageUrl);
+            const updateResponse = await blogAPI.update(savedPost.id, { ...postData, image: imageUrl });
+            console.log('✅ Post updated with image:', updateResponse.data);
+            
+            // Update local state to reflect the new image immediately
+            savedPost = updateResponse.data.data;
+            
+            toast.success(editingPost ? 'Post updated with image! 🎉' : 'Post created with image! 🎉');
+          } else {
+            console.warn('⚠️ Image upload returned default URL');
+            toast.warning('Post saved but image upload failed');
           }
         } catch (imgError) {
-          console.error('Image upload error:', imgError);
+          console.error('❌ Image upload error:', imgError);
           toast.warning('Post saved but image upload failed');
         }
       } else {
+        console.log('✅ Post saved without new image');
         toast.success(editingPost ? 'Blog post updated successfully!' : 'Blog post created successfully!');
       }
 
@@ -434,13 +466,16 @@ const BlogTab = ({ posts, onRefresh }) => {
       setEditingPost(null);
       setShowEditor(false);
       
-      // Refresh the posts list
+      // Refresh the posts list to show the new/updated post
+      console.log('🔄 Refreshing posts list...');
       await onRefresh();
+      console.log('✅ Posts list refreshed');
       
       // Scroll to top to see the new post
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
-      console.error('Error saving blog post:', error);
+      console.error('❌ Error saving blog post:', error);
+      console.error('   Error details:', error.response?.data);
       toast.error('Failed to save blog post: ' + (error.response?.data?.message || error.message));
     } finally {
       setUploading(false);
@@ -605,35 +640,61 @@ const BlogTab = ({ posts, onRefresh }) => {
                 Featured Image {imageFile && <span className="text-green-600">(New image selected)</span>}
               </label>
               <div className="space-y-3">
-                <div className="flex items-center space-x-4">
-                  <label className="flex items-center px-4 py-2 bg-gradient-to-r from-navy-600 to-navy-800 text-white rounded-lg cursor-pointer hover:from-navy-700 hover:to-navy-900 transition-all shadow-md hover:shadow-lg">
-                    <FaImage className="mr-2" />
-                    <span className="text-sm font-medium">
-                      {imageFile ? 'Change Image' : editingPost ? 'Update Image' : 'Choose Image'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                      disabled={uploading}
-                    />
+                {/* Image URL Input - Alternative to file upload */}
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">
+                    Option 1: Paste Image URL (Works immediately, no Firebase needed)
                   </label>
-                  {imageFile && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-green-600 font-medium">{imageFile.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImageFile(null);
-                          setImagePreview(editingPost?.image || '');
-                        }}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  )}
+                  <input
+                    type="url"
+                    value={formData.image || ''}
+                    onChange={(e) => {
+                      setFormData({ ...formData, image: e.target.value });
+                      if (e.target.value) {
+                        setImagePreview(e.target.value);
+                      }
+                    }}
+                    placeholder="https://example.com/image.jpg"
+                    className="input-field text-sm"
+                    disabled={uploading}
+                  />
+                </div>
+
+                {/* File Upload */}
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">
+                    Option 2: Upload from Computer {!storage && '(Requires Firebase Storage setup)'}
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center px-4 py-2 bg-gradient-to-r from-navy-600 to-navy-800 text-white rounded-lg cursor-pointer hover:from-navy-700 hover:to-navy-900 transition-all shadow-md hover:shadow-lg">
+                      <FaImage className="mr-2" />
+                      <span className="text-sm font-medium">
+                        {imageFile ? 'Change Image' : editingPost ? 'Update Image' : 'Choose Image'}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                        disabled={uploading}
+                      />
+                    </label>
+                    {imageFile && (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-green-600 font-medium">{imageFile.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImageFile(null);
+                            setImagePreview(editingPost?.image || formData.image || '');
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 {imagePreview && (
@@ -642,6 +703,10 @@ const BlogTab = ({ posts, onRefresh }) => {
                       src={imagePreview}
                       alt="Preview"
                       className="h-48 w-auto rounded-lg object-cover shadow-lg border-2 border-gray-200"
+                      onError={(e) => {
+                        console.warn('⚠️ Preview image failed to load:', imagePreview);
+                        e.target.src = 'https://via.placeholder.com/400x300/001F3F/FFFFFF?text=Invalid+Image+URL';
+                      }}
                     />
                     {imageFile && (
                       <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
@@ -653,8 +718,8 @@ const BlogTab = ({ posts, onRefresh }) => {
                 
                 <p className="text-xs text-gray-500">
                   {storage ? 
-                    'Supported: JPG, PNG, GIF (Max 5MB). Images are stored in Firebase Cloud Storage.' : 
-                    'Firebase Storage not configured. Using default image.'
+                    '💡 Paste image URL for instant preview, or upload file to Firebase Storage.' : 
+                    '⚠️ Firebase Storage not configured. Please paste an image URL or check FIREBASE_STORAGE_SETUP.md'
                   }
                 </p>
               </div>

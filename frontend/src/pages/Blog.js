@@ -101,14 +101,24 @@ const BlogCard = ({ post }) => {
     <Link to={`/blog/${post.slug}`} className="block group h-full">
       <div className="card h-full flex flex-col">
         <div className="w-full h-56 bg-gradient-navy rounded-lg mb-4 overflow-hidden">
-          <img
-            src={post.image || '/images/blog/default.jpg'}
-            alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/400x300/001F3F/FFFFFF?text=Cradle+Bridge';
-            }}
-          />
+          {post.image && post.image !== '/images/blog/default.jpg' ? (
+            <img
+              src={post.image}
+              alt={post.title}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              onError={(e) => {
+                console.warn('Image failed to load:', post.image);
+                e.target.src = 'https://via.placeholder.com/400x300/001F3F/FFFFFF?text=Cradle+Bridge';
+              }}
+              onLoad={() => {
+                console.log('Image loaded successfully:', post.image);
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy-600 to-navy-900">
+              <span className="text-white text-lg font-semibold">Cradle Bridge Schools</span>
+            </div>
+          )}
         </div>
         <div className="flex-grow">
           <div className="flex items-center justify-between mb-3">

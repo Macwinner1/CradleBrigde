@@ -51,16 +51,22 @@ const BlogPost = () => {
     <div>
       {/* Hero Section */}
       <section className="relative py-32 bg-gradient-navy text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
-          />
-        </div>
+        {post.image && post.image !== '/images/blog/default.jpg' && (
+          <div className="absolute inset-0 opacity-20">
+            <img
+              src={post.image}
+              alt={post.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                console.warn('Hero image failed to load:', post.image);
+                e.target.style.display = 'none';
+              }}
+              onLoad={() => {
+                console.log('Hero image loaded successfully:', post.image);
+              }}
+            />
+          </div>
+        )}
         <div className="container-custom px-4 relative z-10">
           <Link to="/blog" className="inline-flex items-center text-navy-200 hover:text-white mb-6 transition-colors">
             <FaArrowLeft className="mr-2" />
@@ -98,6 +104,29 @@ const BlogPost = () => {
       {/* Content */}
       <section className="section-padding bg-white">
         <div className="container-custom max-w-4xl">
+          {/* Featured Image */}
+          {post.image && post.image !== '/images/blog/default.jpg' && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="mb-8 rounded-lg overflow-hidden shadow-xl"
+            >
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-auto object-cover"
+                onError={(e) => {
+                  console.warn('Featured image failed to load:', post.image);
+                  e.target.style.display = 'none';
+                }}
+                onLoad={() => {
+                  console.log('Featured image loaded successfully:', post.image);
+                }}
+              />
+            </motion.div>
+          )}
+
           <motion.article
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
