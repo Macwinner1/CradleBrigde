@@ -32,6 +32,20 @@ const Home = () => {
     };
 
     fetchData();
+
+    // Auto-refresh blog posts every 30 seconds to show new posts from admin
+    const interval = setInterval(() => {
+      console.log('Auto-refreshing blog posts...');
+      blogAPI.getAll({ limit: 3 })
+        .then(response => {
+          if (response.data.success) {
+            setRecentPosts(response.data.data);
+          }
+        })
+        .catch(error => console.error('Error refreshing blog posts:', error));
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
   const fadeInUp = {
