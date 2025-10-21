@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const validator = require('validator');
+const { authenticateUser } = require('../middleware/auth');
 
 // In-memory storage (replace with database in production)
 let applications = [];
@@ -71,8 +72,8 @@ router.post('/submit', validateApplication, async (req, res) => {
   }
 });
 
-// Get all applications (Admin only - add auth middleware in production)
-router.get('/', (req, res) => {
+// Get all applications (Admin only - protected route)
+router.get('/', authenticateUser, (req, res) => {
   try {
     res.status(200).json({
       success: true,
@@ -91,7 +92,7 @@ router.get('/', (req, res) => {
 });
 
 // Get single application by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', authenticateUser, (req, res) => {
   try {
     const application = applications.find(app => app.id === req.params.id);
     
@@ -116,7 +117,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Update application status
-router.patch('/:id/status', (req, res) => {
+router.patch('/:id/status', authenticateUser, (req, res) => {
   try {
     const { status } = req.body;
     const validStatuses = ['pending', 'reviewed', 'accepted', 'rejected'];
@@ -155,7 +156,7 @@ router.patch('/:id/status', (req, res) => {
 });
 
 // Delete application
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticateUser, (req, res) => {
   try {
     const applicationIndex = applications.findIndex(app => app.id === req.params.id);
     

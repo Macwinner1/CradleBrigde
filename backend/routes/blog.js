@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const validator = require('validator');
+const { authenticateUser } = require('../middleware/auth');
 
 // In-memory storage (replace with database in production)
 let blogPosts = [
@@ -91,7 +92,7 @@ router.get('/:slug', (req, res) => {
 });
 
 // Get all blog posts (Admin - including drafts)
-router.get('/admin/all', (req, res) => {
+router.get('/admin/all', authenticateUser, (req, res) => {
   try {
     const posts = blogPosts.sort((a, b) => 
       new Date(b.createdAt) - new Date(a.createdAt)
@@ -112,7 +113,7 @@ router.get('/admin/all', (req, res) => {
 });
 
 // Create new blog post (Admin only)
-router.post('/', (req, res) => {
+router.post('/', authenticateUser, (req, res) => {
   try {
     const { title, content, excerpt, category, author, image, status } = req.body;
     
@@ -159,7 +160,7 @@ router.post('/', (req, res) => {
 });
 
 // Update blog post (Admin only)
-router.put('/:id', (req, res) => {
+router.put('/:id', authenticateUser, (req, res) => {
   try {
     const postIndex = blogPosts.findIndex(post => post.id === req.params.id);
     
@@ -204,7 +205,7 @@ router.put('/:id', (req, res) => {
 });
 
 // Delete blog post (Admin only)
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticateUser, (req, res) => {
   try {
     const postIndex = blogPosts.findIndex(post => post.id === req.params.id);
     

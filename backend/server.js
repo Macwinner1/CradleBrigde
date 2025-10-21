@@ -5,6 +5,10 @@ const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
+// Initialize Firebase Admin
+const { initializeFirebase } = require('./config/firebase');
+initializeFirebase();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -25,11 +29,13 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Routes
+const authRoutes = require('./routes/auth');
 const applicationRoutes = require('./routes/applications');
 const blogRoutes = require('./routes/blog');
 const contactRoutes = require('./routes/contact');
 const statsRoutes = require('./routes/stats');
 
+app.use('/api/auth', authRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/contact', contactRoutes);

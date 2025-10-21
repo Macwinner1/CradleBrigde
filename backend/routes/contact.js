@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const validator = require('validator');
+const { authenticateUser } = require('../middleware/auth');
 
 // In-memory storage (replace with database in production)
 let inquiries = [];
@@ -75,7 +76,7 @@ router.post('/submit', validateContact, async (req, res) => {
 });
 
 // Get all inquiries (Admin only)
-router.get('/', (req, res) => {
+router.get('/', authenticateUser, (req, res) => {
   try {
     res.status(200).json({
       success: true,
@@ -94,7 +95,7 @@ router.get('/', (req, res) => {
 });
 
 // Get single inquiry by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', authenticateUser, (req, res) => {
   try {
     const inquiry = inquiries.find(inq => inq.id === req.params.id);
     
@@ -119,7 +120,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Update inquiry status
-router.patch('/:id/status', (req, res) => {
+router.patch('/:id/status', authenticateUser, (req, res) => {
   try {
     const { status } = req.body;
     const validStatuses = ['new', 'read', 'responded', 'archived'];
@@ -158,7 +159,7 @@ router.patch('/:id/status', (req, res) => {
 });
 
 // Delete inquiry
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticateUser, (req, res) => {
   try {
     const inquiryIndex = inquiries.findIndex(inq => inq.id === req.params.id);
     
