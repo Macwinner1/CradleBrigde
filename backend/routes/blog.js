@@ -5,32 +5,32 @@ const { authenticateUser } = require('../middleware/auth');
 
 // In-memory storage (replace with database in production)
 let blogPosts = [
-  {
-    id: '1',
-    title: 'Welcome to Cradle Bridge Schools',
-    slug: 'welcome-to-cradle-bridge-schools',
-    excerpt: 'We are excited to launch our new website and share our journey of academic excellence.',
-    content: 'Welcome to Cradle Bridge Schools, where we nurture young minds and build future leaders...',
-    category: 'Announcements',
-    author: 'Admin',
-    image: '/images/blog/welcome.jpg',
-    publishedAt: new Date('2025-01-15').toISOString(),
-    createdAt: new Date('2025-01-15').toISOString(),
-    status: 'published'
-  },
-  {
-    id: '2',
-    title: 'Inter-House Sports Competition 2025',
-    slug: 'inter-house-sports-competition-2025',
-    excerpt: 'Our annual inter-house sports competition showcased amazing talents and teamwork.',
-    content: 'The 2025 Inter-House Sports Competition was a huge success...',
-    category: 'Events',
-    author: 'Sports Coordinator',
-    image: '/images/blog/sports.jpg',
-    publishedAt: new Date('2025-02-10').toISOString(),
-    createdAt: new Date('2025-02-10').toISOString(),
-    status: 'published'
-  }
+  // {
+  //   id: '1',
+  //   title: 'Welcome to Cradle Bridge Schools',
+  //   slug: 'welcome-to-cradle-bridge-schools',
+  //   excerpt: 'We are excited to launch our new website and share our journey of academic excellence.',
+  //   content: 'Welcome to Cradle Bridge Schools, where we nurture young minds and build future leaders...',
+  //   category: 'Announcements',
+  //   author: 'Admin',
+  //   image: '/images/blog/welcome.jpg',
+  //   publishedAt: new Date('2025-01-15').toISOString(),
+  //   createdAt: new Date('2025-01-15').toISOString(),
+  //   status: 'published'
+  // },
+  // {
+  //   id: '2',
+  //   title: 'Inter-House Sports Competition 2025',
+  //   slug: 'inter-house-sports-competition-2025',
+  //   excerpt: 'Our annual inter-house sports competition showcased amazing talents and teamwork.',
+  //   content: 'The 2025 Inter-House Sports Competition was a huge success...',
+  //   category: 'Events',
+  //   author: 'Sports Coordinator',
+  //   image: '/images/blog/sports.jpg',
+  //   publishedAt: new Date('2025-02-10').toISOString(),
+  //   createdAt: new Date('2025-02-10').toISOString(),
+  //   status: 'published'
+  // }
 ];
 
 // Get all published blog posts

@@ -40,15 +40,20 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/stats', statsRoutes);
+app.get("/", (req,res)=>{
+  res.send("welcome to my application")
+})
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
-    message: 'Cradle Bridge Schools API is running',
+    // message: 'Cradle Bridge Schools API is running',
+    message: 'Testing for updates',
     timestamp: new Date().toISOString()
   });
 });
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
